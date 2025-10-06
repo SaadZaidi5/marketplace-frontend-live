@@ -12,6 +12,7 @@ interface ProductImage {
 interface Product {
   id: number;
   name: string;
+  slug?: string;
   description: string | null;
   price: number;
   stock: number;
@@ -214,10 +215,7 @@ export default function ProductsPage() {
                   <div
                     key={product.id}
                     className="bg-white border border-[#e6dfdb] rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                    // @ts-ignore
-                    onClick={() =>
-                      router.push(`/products/${(product as any).slug}`)
-                    }
+                    onClick={() => router.push(`/products/${product.slug}`)}
                   >
                     {/* Product Image */}
                     <div className="aspect-square bg-[#f5f2f0] flex items-center justify-center overflow-hidden">
