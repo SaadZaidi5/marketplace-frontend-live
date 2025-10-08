@@ -258,7 +258,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
                 {/* Price and Stock */}
                 <div className="flex items-center gap-4">
                   <span className="text-[#f2690d] text-3xl font-bold">
-                    ${product.price.toFixed(2)}
+                    Rs. {product.price.toFixed(2)}
                   </span>
                   <span
                     className={`px-3 py-1 rounded text-sm font-medium ${

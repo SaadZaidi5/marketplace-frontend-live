@@ -244,7 +244,7 @@ export default function ProductsPage() {
 
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-[#f2690d] font-bold text-xl">
-                          ${product.price.toFixed(2)}
+                          Rs. {product.price.toFixed(2)}
                         </span>
                         <span
                           className={`text-xs px-2 py-1 rounded ${

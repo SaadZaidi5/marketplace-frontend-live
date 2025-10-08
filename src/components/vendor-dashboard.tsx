@@ -391,7 +391,7 @@ export default function VendorDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[#181411] text-base font-medium mb-2">
-                      Price ($)
+                      Price (Rs.)
                     </label>
                     <input
                       type="number"
