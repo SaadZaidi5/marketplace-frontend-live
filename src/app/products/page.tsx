@@ -113,7 +113,7 @@ export default function ProductsPage() {
           <div className="flex gap-2">
             {user ? (
               <>
-                {user.role === "vendor" && (
+                {user.role === "VENDOR" && (
                   <button
                     onClick={() => router.push("/vendor/dashboard")}
                     className="px-4 py-2 text-sm font-medium text-[#181411] hover:text-[#f2690d] transition-colors"
@@ -121,7 +121,7 @@ export default function ProductsPage() {
                     Dashboard
                   </button>
                 )}
-                {user.role === "customer" && (
+                {user.role === "CUSTOMER" && (
                   <>
                     <button
                       onClick={() => router.push("/cart")}

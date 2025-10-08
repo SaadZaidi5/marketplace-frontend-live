@@ -320,7 +320,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
                 )}
 
                 {/* Add to Cart / Vendor Role Handling */}
-                {user?.role === "customer" ? (
+                {user?.role === "CUSTOMER" ? (
                   <button
                     onClick={handleAddToCart}
                     disabled={product.stock === 0}
@@ -328,7 +328,7 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
                   >
                     {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
                   </button>
-                ) : user?.role === "vendor" ? (
+                ) : user?.role === "VENDOR" ? (
                   <div className="w-full py-4 px-6 bg-[#f2690d] text-white text-center text-base font-bold rounded-lg cursor-not-allowed opacity-90">
                     Vendors cannot add products to cart
                   </div>
