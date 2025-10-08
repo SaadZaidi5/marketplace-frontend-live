@@ -10,7 +10,7 @@ const inter = Inter({ subsets: ["latin"] }); // replaces sans/GeistSans
 const robotoMono = Roboto_Mono({ subsets: ["latin"] }); // replaces mono
 
 export const metadata: Metadata = {
-  title: "NayaBazaar",
+  title: "NexBazaar",
   description: "Your Next Stop Shop",
 };
 
