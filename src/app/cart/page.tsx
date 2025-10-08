@@ -217,7 +217,7 @@ export default function CartPage() {
                             by {item.vendorName}
                           </p>
                           <p className="text-[#f2690d] font-bold text-lg mt-2">
-                            ${item.price.toFixed(2)}
+                            Rs. {item.price.toFixed(2)}
                           </p>
                         </div>
 
@@ -258,7 +258,7 @@ export default function CartPage() {
                       <div className="text-right">
                         <p className="text-[#8a7160] text-sm">Subtotal</p>
                         <p className="text-[#181411] font-bold text-xl">
-                          ${calculateSubtotal(item).toFixed(2)}
+                          Rs. {calculateSubtotal(item).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -283,7 +283,7 @@ export default function CartPage() {
                     <div className="space-y-3 mb-6">
                       <div className="flex justify-between text-[#8a7160]">
                         <span>Items ({cartItems.length})</span>
-                        <span>${calculateTotal().toFixed(2)}</span>
+                        <span>Rs. {calculateTotal().toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-[#8a7160]">
                         <span>Shipping</span>
@@ -292,7 +292,7 @@ export default function CartPage() {
                       <div className="border-t border-[#e6dfdb] pt-3 flex justify-between text-[#181411] font-bold text-xl">
                         <span>Total</span>
                         <span className="text-[#f2690d]">
-                          ${calculateTotal().toFixed(2)}
+                          Rs. {calculateTotal().toFixed(2)}
                         </span>
                       </div>
                     </div>
