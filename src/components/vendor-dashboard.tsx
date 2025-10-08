@@ -496,7 +496,7 @@ export default function VendorDashboard() {
                             {product.name}
                           </td>
                           <td className="py-3 px-2 text-right text-[#f2690d] font-bold">
-                            ${product.price.toFixed(2)}
+                            Rs. {product.price.toFixed(2)}
                           </td>
                           <td className="py-3 px-2 text-right text-[#181411]">
                             {product.stock}
