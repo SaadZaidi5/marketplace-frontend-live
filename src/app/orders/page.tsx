@@ -233,7 +233,7 @@ export default function OrderHistoryPage() {
                             order.status.slice(1)}
                         </span>
                         <p className="text-[#f2690d] font-bold text-lg">
-                          ${order.totalAmount.toFixed(2)}
+                          Rs. {order.totalAmount.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -275,7 +275,7 @@ export default function OrderHistoryPage() {
                                 Quantity: {item.quantity}
                               </p>
                               <p className="text-[#f2690d] font-bold mt-1">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                Rs. {(item.price * item.quantity).toFixed(2)}
                               </p>
                             </div>
                           </div>

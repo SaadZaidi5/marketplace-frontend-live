@@ -305,13 +305,14 @@ export default function OrderPage({ params }: OrderPageProps) {
                           Sold by: {item.vendor.fullName}
                         </p>
                         <p className="text-[#8a7160] text-sm mt-1">
-                          Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                          Quantity: {item.quantity} × Rs.{" "}
+                          {item.price.toFixed(2)}
                         </p>
                       </div>
 
                       <div className="text-right">
                         <p className="text-[#f2690d] font-bold">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          Rs. {(item.price * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -326,7 +327,7 @@ export default function OrderPage({ params }: OrderPageProps) {
                     Total
                   </span>
                   <span className="text-[#f2690d] text-2xl font-bold">
-                    ${order.totalAmount.toFixed(2)}
+                    Rs. {order.totalAmount.toFixed(2)}
                   </span>
                 </div>
               </div>
