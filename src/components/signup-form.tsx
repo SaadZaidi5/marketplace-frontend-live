@@ -77,7 +77,7 @@ export function SignupForm() {
       if (role === "vendor") {
         router.push("/vendor/dashboard");
       } else {
-        router.push("/customer/dashboard");
+        router.push("/products");
       }
     } catch (error: any) {
       showToast(error.message || "Failed to create account", "error");
