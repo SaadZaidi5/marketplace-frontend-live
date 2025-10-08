@@ -58,7 +58,12 @@ export function LoginForm() {
 
       showToast("Login successful!");
 
-      if (data.user.role === "vendor") {
+      // Route based on role (handle uppercase enums from backend)
+      const role = data.user.role.toUpperCase();
+
+      if (role === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else if (role === "VENDOR") {
         router.push("/vendor/dashboard");
       } else {
         router.push("/products");
