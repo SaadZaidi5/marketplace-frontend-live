@@ -441,7 +441,7 @@ export default function AdminDashboard() {
                     <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
                       <div className="text-4xl mb-2">💰</div>
                       <div className="text-2xl font-bold text-[#f2690d]">
-                        ${(stats.totalRevenue || 0).toFixed(2)}
+                        Rs. {(stats.totalRevenue || 0).toFixed(2)}
                       </div>
                       <div className="text-sm text-[#8a7160]">
                         Total Revenue
