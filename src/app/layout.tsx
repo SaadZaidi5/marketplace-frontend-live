@@ -1,7 +1,7 @@
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react"; // updated import
+import { Analytics } from "@vercel/analytics/next"; // updated import
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";
