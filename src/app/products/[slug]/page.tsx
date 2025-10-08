@@ -44,6 +44,14 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     type: "success" | "error";
   } | null>(null);
   const router = useRouter();
+  const [user, setUser] = useState<{ role?: string; id?: number } | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
 
   const showToast = (
     message: string,
@@ -311,14 +319,27 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
                   </div>
                 )}
 
-                {/* Add to Cart Button */}
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0}
-                  className="w-full py-4 px-6 bg-[#f2690d] text-white text-base font-bold rounded-lg hover:bg-[#d95a0a] transition-colors disabled:bg-[#e6dfdb] disabled:cursor-not-allowed"
-                >
-                  {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                </button>
+                {/* Add to Cart / Vendor Role Handling */}
+                {user?.role === "customer" ? (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                    className="w-full py-4 px-6 bg-[#f2690d] text-white text-base font-bold rounded-lg hover:bg-[#d95a0a] transition-colors disabled:bg-[#e6dfdb] disabled:cursor-not-allowed"
+                  >
+                    {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                  </button>
+                ) : user?.role === "vendor" ? (
+                  <div className="w-full py-4 px-6 bg-[#f2690d] text-white text-center text-base font-bold rounded-lg cursor-not-allowed opacity-90">
+                    Vendors cannot add products to cart
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="w-full py-4 px-6 bg-[#f2690d] text-white text-base font-bold rounded-lg hover:bg-[#d95a0a] transition-colors"
+                  >
+                    Login to Purchase
+                  </button>
+                )}
 
                 {/* Additional Info */}
                 <div className="text-sm text-[#8a7160] space-y-1">
