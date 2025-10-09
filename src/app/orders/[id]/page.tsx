@@ -58,6 +58,7 @@ export default function OrderPage({ params }: OrderPageProps) {
     message: string;
     type: "success" | "error";
   } | null>(null);
+  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   const showToast = (
@@ -69,6 +70,10 @@ export default function OrderPage({ params }: OrderPageProps) {
   };
 
   useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
     fetchOrder();
   }, [resolvedParams.id]);
 
@@ -105,17 +110,17 @@ export default function OrderPage({ params }: OrderPageProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
       case "confirmed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "shipped":
-        return "bg-purple-100 text-purple-800";
+        return "bg-purple-100 text-purple-800 border-purple-200";
       case "delivered":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 border-green-200";
       case "cancelled":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
@@ -129,12 +134,18 @@ export default function OrderPage({ params }: OrderPageProps) {
     });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/");
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
-          <p className="text-[#8a7160]">Loading order...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading order details...</p>
         </div>
       </div>
     );
@@ -144,7 +155,7 @@ export default function OrderPage({ params }: OrderPageProps) {
 
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col bg-white"
+      className="min-h-screen bg-gray-50"
       style={{ fontFamily: 'Manrope, "Noto Sans", sans-serif' }}
     >
       {/* Toast Notification */}
@@ -158,197 +169,329 @@ export default function OrderPage({ params }: OrderPageProps) {
         </div>
       )}
 
-      <div className="layout-container flex h-full grow flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f5f2f0] px-4 sm:px-10 py-3">
-          <div className="flex items-center gap-4 text-[#181411]">
-            <div
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => router.push("/")}
-            >
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_6_319)">
-                  <path
-                    d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
-                    fill="currentColor"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_6_319">
-                    <rect width="48" height="48" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </div>
-            <h2
-              className="text-[#181411] text-lg font-bold leading-tight tracking-[-0.015em] cursor-pointer"
-              onClick={() => router.push("/")}
-            >
-              NexBazaar
-            </h2>
-          </div>
-          <button
-            onClick={() => router.push("/products")}
-            className="text-[#8a7160] hover:text-[#181411] text-sm font-medium"
-          >
-            Continue Shopping
-          </button>
-        </header>
-
-        {/* Main Content */}
-        <div className="px-4 sm:px-10 lg:px-20 xl:px-40 py-8">
-          <div className="max-w-4xl mx-auto">
-            {/* Success Banner */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8 text-center">
-              <div className="text-5xl mb-3">✓</div>
-              <h1 className="text-[#181411] text-2xl font-bold mb-2">
-                Order Placed Successfully!
-              </h1>
-              <p className="text-[#8a7160]">
-                Thank you for your order. We'll send you a confirmation email
-                shortly.
-              </p>
-            </div>
-
-            {/* Order Details */}
-            <div className="bg-white border border-[#e6dfdb] rounded-lg p-6 mb-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                <div>
-                  <h2 className="text-[#181411] text-xl font-bold">
-                    Order Details
-                  </h2>
-                  <p className="text-[#8a7160] text-sm">
-                    Order #{order.orderNumber}
-                  </p>
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <div
+                  className="w-8 h-8 text-orange-600 cursor-pointer"
+                  onClick={() => router.push("/")}
+                >
+                  <svg viewBox="0 0 48 48" fill="currentColor">
+                    <g clipPath="url(#clip0_6_319)">
+                      <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" />
+                    </g>
+                  </svg>
                 </div>
+                <h1 className="ml-3 text-xl font-bold text-gray-900">
+                  NexBazaar
+                </h1>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.push("/products")}
+                className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Continue Shopping
+              </button>
+
+              {user ? (
+                <>
+                  {user.role === "VENDOR" && (
+                    <button
+                      onClick={() => router.push("/vendor/dashboard")}
+                      className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      Vendor Dashboard
+                    </button>
+                  )}
+                  {user.role === "CUSTOMER" && (
+                    <button
+                      onClick={() => router.push("/orders")}
+                      className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      My Orders
+                    </button>
+                  )}
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-orange-600 font-medium">
+                        {user?.fullName
+                          ?.split(" ")
+                          .map((n: string) => n[0])
+                          .join("")}
+                      </span>
+                    </div>
+                    <span className="hidden sm:block">{user?.fullName}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => router.push("/signup")}
+                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-lg hover:bg-orange-700"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Success Header */}
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              className="w-10 h-10 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Order Confirmed!
+          </h1>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Thank you for your order. We've received your order and will begin
+            processing it right away.
+          </p>
+        </div>
+
+        {/* Order Summary Card */}
+        <div className="bg-white shadow rounded-lg overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-orange-600 to-orange-500 px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-white">
+                  Order #{order.orderNumber}
+                </h2>
+                <p className="text-orange-100 text-sm mt-1">
+                  Placed on {formatDate(order.createdAt)}
+                </p>
+              </div>
+              <div className="mt-2 sm:mt-0">
                 <span
-                  className={`px-4 py-2 rounded-lg text-sm font-bold ${getStatusColor(
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(
                     order.status
                   )}`}
                 >
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </span>
               </div>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <h3 className="text-[#181411] font-bold mb-2">
-                    Shipping Address
-                  </h3>
-                  <p className="text-[#8a7160] text-sm leading-relaxed">
-                    {order.shippingAddress}
-                    <br />
-                    {order.shippingCity}, {order.shippingZip}
-                    <br />
-                    {order.shippingCountry}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-[#181411] font-bold mb-2">
-                    Order Information
-                  </h3>
-                  <p className="text-[#8a7160] text-sm">
-                    Order Date: {formatDate(order.createdAt)}
-                    <br />
-                    Payment:{" "}
-                    {order.paymentMethod === "cod"
-                      ? "Cash on Delivery"
-                      : "Card"}
-                    <br />
-                    Payment Status: {order.paymentStatus}
-                  </p>
-                </div>
+          <div className="p-6">
+            {/* Order Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                  Shipping Address
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {order.shippingAddress}
+                  <br />
+                  {order.shippingCity}, {order.shippingZip}
+                  <br />
+                  {order.shippingCountry}
+                </p>
               </div>
 
-              {/* Order Items */}
-              <div>
-                <h3 className="text-[#181411] font-bold mb-4">Items Ordered</h3>
-                <div className="space-y-4">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex gap-4 pb-4 border-b border-[#e6dfdb] last:border-0"
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">
+                  Order Information
+                </h3>
+                <div className="space-y-1 text-sm text-gray-600">
+                  <div className="flex justify-between">
+                    <span>Payment Method:</span>
+                    <span className="font-medium">
+                      {order.paymentMethod === "cod"
+                        ? "Cash on Delivery"
+                        : "Credit Card"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Payment Status:</span>
+                    <span
+                      className={`font-medium ${
+                        order.paymentStatus === "completed"
+                          ? "text-green-600"
+                          : "text-yellow-600"
+                      }`}
                     >
-                      <div
-                        className="w-20 h-20 bg-[#f5f2f0] rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"
+                      {order.paymentStatus.charAt(0).toUpperCase() +
+                        order.paymentStatus.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Total Items:</span>
+                    <span className="font-medium">{order.items.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Order Items */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Order Items
+              </h3>
+              <div className="space-y-4">
+                {order.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div
+                      className="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-lg overflow-hidden cursor-pointer"
+                      onClick={() =>
+                        router.push(`/products/${item.product.slug}`)
+                      }
+                    >
+                      {item.product.images.length > 0 ? (
+                        <img
+                          src={item.product.images[0].url}
+                          alt={item.product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <svg
+                            className="w-6 h-6 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className="text-base font-semibold text-gray-900 cursor-pointer hover:text-orange-600 transition-colors"
                         onClick={() =>
                           router.push(`/products/${item.product.slug}`)
                         }
                       >
-                        {item.product.images.length > 0 ? (
-                          <img
-                            src={item.product.images[0].url}
-                            alt={item.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-3xl">
-                            📦
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1">
-                        <h4
-                          className="text-[#181411] font-bold cursor-pointer hover:text-[#f2690d]"
-                          onClick={() =>
-                            router.push(`/products/${item.product.slug}`)
-                          }
-                        >
-                          {item.product.name}
-                        </h4>
-                        <p className="text-[#8a7160] text-sm">
-                          Sold by: {item.vendor.fullName}
-                        </p>
-                        <p className="text-[#8a7160] text-sm mt-1">
-                          Quantity: {item.quantity} × Rs.{" "}
-                          {item.price.toFixed(2)}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-[#f2690d] font-bold">
-                          Rs. {(item.price * item.quantity).toFixed(2)}
-                        </p>
-                      </div>
+                        {item.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Sold by: {item.vendor.fullName}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        Quantity: {item.quantity} × Rs. {item.price.toFixed(2)}
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Total */}
-              <div className="mt-6 pt-6 border-t border-[#e6dfdb]">
-                <div className="flex justify-between items-center">
-                  <span className="text-[#181411] text-xl font-bold">
-                    Total
-                  </span>
-                  <span className="text-[#f2690d] text-2xl font-bold">
-                    Rs. {order.totalAmount.toFixed(2)}
-                  </span>
-                </div>
+                    <div className="text-right">
+                      <p className="text-lg font-semibold text-orange-600">
+                        Rs. {(item.price * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => router.push("/products")}
-                className="flex-1 py-3 px-6 bg-[#f2690d] text-white font-bold rounded-lg hover:bg-[#d95a0a] transition-colors"
-              >
-                Continue Shopping
-              </button>
-              <button
-                onClick={() => router.push("/orders")}
-                className="flex-1 py-3 px-6 border border-[#e6dfdb] text-[#181411] font-bold rounded-lg hover:bg-[#f5f2f0] transition-colors"
-              >
-                View All Orders
-              </button>
+            {/* Order Total */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-semibold text-gray-900">
+                  Order Total
+                </span>
+                <span className="text-2xl font-bold text-orange-600">
+                  Rs. {order.totalAmount.toFixed(2)}
+                </span>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">
+            What happens next?
+          </h3>
+          <div className="space-y-3 text-sm text-blue-800">
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 text-xs font-bold">1</span>
+              </div>
+              <span>You'll receive an order confirmation email shortly</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 text-xs font-bold">2</span>
+              </div>
+              <span>We'll notify you when your order ships</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                <span className="text-blue-600 text-xs font-bold">3</span>
+              </div>
+              <span>Expected delivery within 3-5 business days</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <button
+            onClick={() => router.push("/products")}
+            className="flex-1 py-3 px-6 bg-orange-600 text-white text-base font-semibold rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm"
+          >
+            Continue Shopping
+          </button>
+          <button
+            onClick={() => router.push("/orders")}
+            className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 text-base font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+          >
+            View All Orders
+          </button>
+        </div>
+
+        {/* Support Info */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-600">
+            Need help?{" "}
+            <button className="text-orange-600 hover:text-orange-700 font-medium">
+              Contact Support
+            </button>
+          </p>
         </div>
       </div>
 
