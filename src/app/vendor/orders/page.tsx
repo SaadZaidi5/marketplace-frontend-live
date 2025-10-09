@@ -69,7 +69,7 @@ export default function VendorOrdersPage() {
     }
 
     const userData = JSON.parse(user);
-    if (userData.role !== "vendor") {
+    if (userData.role !== "VENDOR") {
       showToast("Only vendors can view orders", "error");
       router.push("/");
     }
@@ -337,14 +337,14 @@ export default function VendorOrdersPage() {
                                 {item.product.name}
                               </h4>
                               <p className="text-[#8a7160] text-sm mt-1">
-                                Quantity: {item.quantity} × $
+                                Quantity: {item.quantity} × Rs.{" "}
                                 {item.price.toFixed(2)}
                               </p>
                             </div>
 
                             <div className="text-right">
                               <p className="text-[#f2690d] font-bold">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                Rs. {(item.price * item.quantity).toFixed(2)}
                               </p>
                             </div>
                           </div>
@@ -356,7 +356,7 @@ export default function VendorOrdersPage() {
                           Your Total
                         </span>
                         <span className="text-[#f2690d] font-bold text-xl">
-                          ${calculateVendorTotal(order).toFixed(2)}
+                          Rs. {calculateVendorTotal(order).toFixed(2)}
                         </span>
                       </div>
 
