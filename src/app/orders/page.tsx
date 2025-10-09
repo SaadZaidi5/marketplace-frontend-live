@@ -233,7 +233,7 @@ export default function OrderHistoryPage() {
                       <span className="text-orange-600 font-medium">
                         {user?.fullName
                           ?.split(" ")
-                          .map((n) => n[0])
+                          .map((n: string) => n[0])
                           .join("")}
                       </span>
                     </div>
