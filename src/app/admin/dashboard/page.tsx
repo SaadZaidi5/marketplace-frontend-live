@@ -284,11 +284,46 @@ export default function AdminDashboard() {
     }
   };
 
+  const getStatusColor = (status: string) => {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "shipped":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "active":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "suspended":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "banned":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col bg-white"
+      className="min-h-screen bg-gray-50"
       style={{ fontFamily: 'Manrope, "Noto Sans", sans-serif' }}
     >
+      {/* Toast Notification */}
       {toast && (
         <div
           className={`fixed top-5 right-5 px-6 py-4 rounded-lg shadow-lg z-50 ${
@@ -300,102 +335,172 @@ export default function AdminDashboard() {
       )}
 
       {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f5f2f0] px-4 sm:px-10 py-3">
-        <div className="flex items-center gap-4 text-[#181411]">
-          <div
-            className="w-4 h-4 cursor-pointer"
-            onClick={() => router.push("/")}
-          >
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_6_319)">
-                <path
-                  d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
-                  fill="currentColor"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_6_319">
-                  <rect width="48" height="48" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-          <h2
-            className="text-[#181411] text-lg font-bold"
-            onClick={() => router.push("/")}
-          >
-            NexBazaar Admin
-          </h2>
-        </div>
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <div
+                  className="w-8 h-8 text-orange-600 cursor-pointer"
+                  onClick={() => router.push("/")}
+                >
+                  <svg viewBox="0 0 48 48" fill="currentColor">
+                    <g clipPath="url(#clip0_6_319)">
+                      <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" />
+                    </g>
+                  </svg>
+                </div>
+                <h1 className="ml-3 text-xl font-bold text-gray-900">
+                  NexBazaar Admin
+                </h1>
+              </div>
+            </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-[#8a7160] text-sm">{user?.fullName}</span>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium text-[#181411] border border-[#e6dfdb] rounded-lg hover:bg-[#f5f2f0]"
-          >
-            Logout
-          </button>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-orange-600 font-medium">
+                    {user?.fullName
+                      ?.split(" ")
+                      .map((n: string) => n[0])
+                      .join("")}
+                  </span>
+                </div>
+                <span className="hidden sm:block">{user?.fullName}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
       <div className="flex flex-1">
         {/* Sidebar */}
-        <div className="w-64 border-r border-[#f5f2f0] p-4">
-          <nav className="space-y-2">
+        <div className="w-64 bg-white shadow-sm border-r border-gray-200">
+          <nav className="p-6 space-y-2">
             <button
               onClick={() => setActiveTab("dashboard")}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === "dashboard"
-                  ? "bg-[#f2690d] text-white"
-                  : "text-[#181411] hover:bg-[#f5f2f0]"
+                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              📊 Dashboard
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                />
+              </svg>
+              <span className="font-medium">Dashboard</span>
             </button>
+
             <button
               onClick={() => setActiveTab("users")}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === "users"
-                  ? "bg-[#f2690d] text-white"
-                  : "text-[#181411] hover:bg-[#f5f2f0]"
+                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              👥 Users
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
+              </svg>
+              <span className="font-medium">Users</span>
             </button>
+
             <button
               onClick={() => setActiveTab("products")}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === "products"
-                  ? "bg-[#f2690d] text-white"
-                  : "text-[#181411] hover:bg-[#f5f2f0]"
+                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              📦 Products
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
+              </svg>
+              <span className="font-medium">Products</span>
             </button>
+
             <button
               onClick={() => setActiveTab("orders")}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === "orders"
-                  ? "bg-[#f2690d] text-white"
-                  : "text-[#181411] hover:bg-[#f5f2f0]"
+                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              🛒 Orders
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                />
+              </svg>
+              <span className="font-medium">Orders</span>
             </button>
+
             <button
               onClick={() => setActiveTab("logs")}
-              className={`w-full text-left px-4 py-2 rounded-lg ${
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === "logs"
-                  ? "bg-[#f2690d] text-white"
-                  : "text-[#181411] hover:bg-[#f5f2f0]"
+                  ? "bg-orange-50 text-orange-700 border border-orange-200"
+                  : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              📝 Activity Logs
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              <span className="font-medium">Activity Logs</span>
             </button>
           </nav>
         </div>
@@ -404,84 +509,182 @@ export default function AdminDashboard() {
         <div className="flex-1 p-8 overflow-auto">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="animate-spin text-4xl">⏳</div>
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+                <p className="mt-4 text-gray-600">Loading data...</p>
+              </div>
             </div>
           ) : (
             <>
               {/* Dashboard */}
               {activeTab === "dashboard" && stats && (
                 <div>
-                  <h1 className="text-3xl font-bold text-[#181411] mb-8">
-                    Dashboard Overview
-                  </h1>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                      <div className="text-4xl mb-2">👥</div>
-                      <div className="text-2xl font-bold text-[#181411]">
-                        {stats.totalUsers}
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      Dashboard Overview
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Monitor your platform performance and statistics
+                    </p>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-blue-100 rounded-lg p-3">
+                          <svg
+                            className="w-6 h-6 text-blue-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-500">
+                            Total Users
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {stats.totalUsers}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-sm text-[#8a7160]">Total Users</div>
                     </div>
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-                      <div className="text-4xl mb-2">📦</div>
-                      <div className="text-2xl font-bold text-[#181411]">
-                        {stats.totalProducts}
-                      </div>
-                      <div className="text-sm text-[#8a7160]">
-                        Total Products
+
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-green-100 rounded-lg p-3">
+                          <svg
+                            className="w-6 h-6 text-green-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-500">
+                            Total Products
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {stats.totalProducts}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
-                      <div className="text-4xl mb-2">🛒</div>
-                      <div className="text-2xl font-bold text-[#181411]">
-                        {stats.totalOrders}
+
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-purple-100 rounded-lg p-3">
+                          <svg
+                            className="w-6 h-6 text-purple-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-500">
+                            Total Orders
+                          </p>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {stats.totalOrders}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-sm text-[#8a7160]">Total Orders</div>
                     </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
-                      <div className="text-4xl mb-2">💰</div>
-                      <div className="text-2xl font-bold text-[#f2690d]">
-                        Rs. {(stats.totalRevenue || 0).toFixed(2)}
-                      </div>
-                      <div className="text-sm text-[#8a7160]">
-                        Total Revenue
+
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 bg-orange-100 rounded-lg p-3">
+                          <svg
+                            className="w-6 h-6 text-orange-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="ml-4">
+                          <p className="text-sm font-medium text-gray-500">
+                            Total Revenue
+                          </p>
+                          <p className="text-2xl font-bold text-orange-600">
+                            Rs. {(stats.totalRevenue || 0).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white border border-[#e6dfdb] rounded-lg p-6">
-                      <h3 className="text-xl font-bold text-[#181411] mb-4">
+                  {/* Charts */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Users by Role
                       </h3>
-                      {(stats.usersByRole || []).map((item) => (
-                        <div
-                          key={item.role}
-                          className="flex justify-between py-2 border-b border-[#e6dfdb]"
-                        >
-                          <span className="text-[#181411]">{item.role}</span>
-                          <span className="font-bold text-[#f2690d]">
-                            {item._count}
-                          </span>
-                        </div>
-                      ))}
+                      <div className="space-y-3">
+                        {(stats.usersByRole || []).map((item) => (
+                          <div
+                            key={item.role}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-sm font-medium text-gray-700">
+                              {item.role}
+                            </span>
+                            <span className="text-lg font-bold text-orange-600">
+                              {item._count}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="bg-white border border-[#e6dfdb] rounded-lg p-6">
-                      <h3 className="text-xl font-bold text-[#181411] mb-4">
+                    <div className="bg-white shadow rounded-lg p-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Orders by Status
                       </h3>
-                      {(stats.ordersByStatus || []).map((item) => (
-                        <div
-                          key={item.status}
-                          className="flex justify-between py-2 border-b border-[#e6dfdb]"
-                        >
-                          <span className="text-[#181411]">{item.status}</span>
-                          <span className="font-bold text-[#f2690d]">
-                            {item._count}
-                          </span>
-                        </div>
-                      ))}
+                      <div className="space-y-3">
+                        {(stats.ordersByStatus || []).map((item) => (
+                          <div
+                            key={item.status}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-sm font-medium text-gray-700">
+                              {item.status}
+                            </span>
+                            <span className="text-lg font-bold text-orange-600">
+                              {item._count}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -490,85 +693,93 @@ export default function AdminDashboard() {
               {/* Users */}
               {activeTab === "users" && (
                 <div>
-                  <h1 className="text-3xl font-bold text-[#181411] mb-8">
-                    User Management
-                  </h1>
-                  <div className="bg-white border border-[#e6dfdb] rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-[#f5f2f0]">
-                        <tr>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Name
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Email
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Role
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Status
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Products/Orders
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(users || []).map((user) => (
-                          <tr
-                            key={user.id}
-                            className="border-t border-[#e6dfdb]"
-                          >
-                            <td className="p-4 text-[#181411]">
-                              {user.fullName}
-                            </td>
-                            <td className="p-4 text-[#8a7160]">{user.email}</td>
-                            <td className="p-4">
-                              <select
-                                value={user.role}
-                                onChange={(e) =>
-                                  updateUserRole(user.id, e.target.value)
-                                }
-                                className="px-2 py-1 border border-[#e6dfdb] rounded"
-                              >
-                                <option value="CUSTOMER">CUSTOMER</option>
-                                <option value="VENDOR">VENDOR</option>
-                                <option value="ADMIN">ADMIN</option>
-                              </select>
-                            </td>
-                            <td className="p-4">
-                              <select
-                                value={user.status}
-                                onChange={(e) =>
-                                  updateUserStatus(user.id, e.target.value)
-                                }
-                                className="px-2 py-1 border border-[#e6dfdb] rounded"
-                              >
-                                <option value="ACTIVE">ACTIVE</option>
-                                <option value="SUSPENDED">SUSPENDED</option>
-                                <option value="BANNED">BANNED</option>
-                              </select>
-                            </td>
-                            <td className="p-4 text-[#8a7160]">
-                              {user._count.products} /{" "}
-                              {user._count.customerOrders}
-                            </td>
-                            <td className="p-4">
-                              <button
-                                onClick={() => deleteUser(user.id)}
-                                className="px-3 py-1 border border-red-300 text-red-600 rounded hover:bg-red-50"
-                              >
-                                Delete
-                              </button>
-                            </td>
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      User Management
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Manage user accounts, roles, and status
+                    </p>
+                  </div>
+
+                  <div className="bg-white shadow rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              User
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Role
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Metrics
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {(users || []).map((user) => (
+                            <tr key={user.id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {user.fullName}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {user.email}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <select
+                                  value={user.role}
+                                  onChange={(e) =>
+                                    updateUserRole(user.id, e.target.value)
+                                  }
+                                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md"
+                                >
+                                  <option value="CUSTOMER">CUSTOMER</option>
+                                  <option value="VENDOR">VENDOR</option>
+                                  <option value="ADMIN">ADMIN</option>
+                                </select>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <select
+                                  value={user.status}
+                                  onChange={(e) =>
+                                    updateUserStatus(user.id, e.target.value)
+                                  }
+                                  className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md"
+                                >
+                                  <option value="ACTIVE">ACTIVE</option>
+                                  <option value="SUSPENDED">SUSPENDED</option>
+                                  <option value="BANNED">BANNED</option>
+                                </select>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {user._count.products} Products /{" "}
+                                {user._count.customerOrders} Orders
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button
+                                  onClick={() => deleteUser(user.id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
@@ -576,46 +787,74 @@ export default function AdminDashboard() {
               {/* Products */}
               {activeTab === "products" && (
                 <div>
-                  <h1 className="text-3xl font-bold text-[#181411] mb-8">
-                    Product Management
-                  </h1>
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      Product Management
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Manage products and inventory
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {(products || []).map((product) => (
                       <div
                         key={product.id}
-                        className="bg-white border border-[#e6dfdb] rounded-lg p-4"
+                        className="bg-white shadow rounded-lg overflow-hidden"
                       >
-                        <div className="w-full h-48 bg-[#f5f2f0] rounded-lg mb-3 flex items-center justify-center">
+                        <div className="h-48 bg-gray-200 overflow-hidden">
                           {product.images[0] ? (
                             <img
                               src={product.images[0].url}
                               alt={product.name}
-                              className="w-full h-full object-cover rounded-lg"
+                              className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="text-6xl">📦</div>
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                              <svg
+                                className="w-12 h-12 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1}
+                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                            </div>
                           )}
                         </div>
-                        <h3 className="text-[#181411] font-bold mb-2">
-                          {product.name}
-                        </h3>
-                        <p className="text-[#8a7160] text-sm mb-2">
-                          by {product.vendor.fullName}
-                        </p>
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-[#f2690d] font-bold">
-                            ${product.price}
-                          </span>
-                          <span className="text-[#8a7160] text-sm">
-                            Stock: {product.stock}
-                          </span>
+                        <div className="p-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 mb-2">
+                            by {product.vendor.fullName}
+                          </p>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-lg font-bold text-orange-600">
+                              Rs. {product.price}
+                            </span>
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                product.stock > 0
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {product.stock} in stock
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => deleteProduct(product.id)}
+                            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Delete Product
+                          </button>
                         </div>
-                        <button
-                          onClick={() => deleteProduct(product.id)}
-                          className="w-full px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                          Delete Product
-                        </button>
                       </div>
                     ))}
                   </div>
@@ -625,46 +864,83 @@ export default function AdminDashboard() {
               {/* Orders */}
               {activeTab === "orders" && (
                 <div>
-                  <h1 className="text-3xl font-bold text-[#181411] mb-8">
-                    Order Management
-                  </h1>
-                  <div className="space-y-4">
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      Order Management
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Monitor and manage customer orders
+                    </p>
+                  </div>
+
+                  <div className="space-y-6">
                     {(orders || []).map((order) => (
                       <div
                         key={order.id}
-                        className="bg-white border border-[#e6dfdb] rounded-lg p-6"
+                        className="bg-white shadow rounded-lg p-6"
                       >
-                        <div className="flex justify-between items-start mb-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                           <div>
-                            <h3 className="text-[#181411] font-bold">
+                            <h3 className="text-lg font-semibold text-gray-900">
                               Order #{order.orderNumber}
                             </h3>
-                            <p className="text-[#8a7160] text-sm">
-                              {order.customer.fullName} - {order.customer.email}
+                            <p className="text-sm text-gray-500">
+                              {order.customer.fullName} • {order.customer.email}
                             </p>
                           </div>
-                          <div className="text-right">
-                            <div className="text-[#f2690d] font-bold text-xl">
-                              ${order.totalAmount.toFixed(2)}
-                            </div>
-                            <select
-                              value={order.status}
-                              onChange={(e) =>
-                                updateOrderStatus(order.id, e.target.value)
-                              }
-                              className="mt-2 px-3 py-1 border border-[#e6dfdb] rounded"
+                          <div className="mt-4 lg:mt-0 flex items-center space-x-4">
+                            <span
+                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
+                                order.status
+                              )}`}
                             >
-                              <option value="PENDING">PENDING</option>
-                              <option value="CONFIRMED">CONFIRMED</option>
-                              <option value="SHIPPED">SHIPPED</option>
-                              <option value="DELIVERED">DELIVERED</option>
-                              <option value="CANCELLED">CANCELLED</option>
-                            </select>
+                              {order.status}
+                            </span>
+                            <span className="text-xl font-bold text-orange-600">
+                              Rs. {order.totalAmount.toFixed(2)}
+                            </span>
                           </div>
                         </div>
-                        <div className="text-sm text-[#8a7160]">
-                          {order.items.length} items -{" "}
-                          {new Date(order.createdAt).toLocaleDateString()}
+
+                        <div className="mb-4">
+                          <p className="text-sm text-gray-500 mb-2">
+                            {order.items.length} items •{" "}
+                            {formatDate(order.createdAt)}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {order.items.slice(0, 3).map((item, index) => (
+                              <span
+                                key={index}
+                                className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700"
+                              >
+                                {item.product.name} (x{item.quantity})
+                              </span>
+                            ))}
+                            {order.items.length > 3 && (
+                              <span className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700">
+                                +{order.items.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-gray-500">
+                            Placed on {formatDate(order.createdAt)}
+                          </span>
+                          <select
+                            value={order.status}
+                            onChange={(e) =>
+                              updateOrderStatus(order.id, e.target.value)
+                            }
+                            className="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-orange-500 focus:border-orange-500 sm:text-sm rounded-md"
+                          >
+                            <option value="PENDING">PENDING</option>
+                            <option value="CONFIRMED">CONFIRMED</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="DELIVERED">DELIVERED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                          </select>
                         </div>
                       </div>
                     ))}
@@ -675,49 +951,61 @@ export default function AdminDashboard() {
               {/* Logs */}
               {activeTab === "logs" && (
                 <div>
-                  <h1 className="text-3xl font-bold text-[#181411] mb-8">
-                    Activity Logs
-                  </h1>
-                  <div className="bg-white border border-[#e6dfdb] rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-[#f5f2f0]">
-                        <tr>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Date
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Admin
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Action
-                          </th>
-                          <th className="text-left p-4 text-[#181411] font-bold">
-                            Description
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(logs || []).map((log) => (
-                          <tr
-                            key={log.id}
-                            className="border-t border-[#e6dfdb]"
-                          >
-                            <td className="p-4 text-[#8a7160] text-sm">
-                              {new Date(log.createdAt).toLocaleString()}
-                            </td>
-                            <td className="p-4 text-[#181411]">
-                              {log.admin.fullName}
-                            </td>
-                            <td className="p-4 text-[#f2690d] font-medium">
-                              {log.action}
-                            </td>
-                            <td className="p-4 text-[#8a7160]">
-                              {log.description}
-                            </td>
+                  <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-gray-900">
+                      Activity Logs
+                    </h1>
+                    <p className="mt-1 text-sm text-gray-600">
+                      Monitor admin activities and system events
+                    </p>
+                  </div>
+
+                  <div className="bg-white shadow rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Date & Time
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Admin
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Action
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Description
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {(logs || []).map((log) => (
+                            <tr key={log.id} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {formatDate(log.createdAt)}
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {log.admin.fullName}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  {log.admin.email}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                  {log.action}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-500">
+                                {log.description}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
