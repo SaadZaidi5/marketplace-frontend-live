@@ -44,7 +44,11 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     type: "success" | "error";
   } | null>(null);
   const router = useRouter();
-  const [user, setUser] = useState<{ role?: string; id?: number } | null>(null);
+  const [user, setUser] = useState<{
+    role?: string;
+    id?: number;
+    fullName?: string;
+  } | null>(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -119,12 +123,35 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     showToast(`Added ${quantity} item(s) to cart!`);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/");
+  };
+
+  const getStockDisplay = (stock: number) => {
+    if (stock > 10)
+      return {
+        text: "In stock",
+        class: "bg-green-100 text-green-800 border-green-200",
+      };
+    if (stock > 0)
+      return {
+        text: `${stock} in stock`,
+        class: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      };
+    return {
+      text: "Out of stock",
+      class: "bg-red-100 text-red-800 border-red-200",
+    };
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin text-4xl mb-4">⏳</div>
-          <p className="text-[#8a7160]">Loading product...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading product...</p>
         </div>
       </div>
     );
@@ -134,9 +161,11 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
     return null;
   }
 
+  const stockInfo = getStockDisplay(product.stock);
+
   return (
     <div
-      className="relative flex min-h-screen w-full flex-col bg-white"
+      className="min-h-screen bg-gray-50"
       style={{ fontFamily: 'Manrope, "Noto Sans", sans-serif' }}
     >
       {/* Toast Notification */}
@@ -150,202 +179,378 @@ export default function ProductDetailPage({ params }: ProductDetailProps) {
         </div>
       )}
 
-      <div className="layout-container flex h-full grow flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f5f2f0] px-4 sm:px-10 py-3">
-          <div className="flex items-center gap-4 text-[#181411]">
-            <div
-              className="w-4 h-4 cursor-pointer"
-              onClick={() => router.push("/")}
-            >
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_6_319)">
-                  <path
-                    d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
-                    fill="currentColor"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_6_319">
-                    <rect width="48" height="48" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </div>
-            <h2
-              className="text-[#181411] text-lg font-bold leading-tight tracking-[-0.015em] cursor-pointer"
-              onClick={() => router.push("/")}
-            >
-              NexBazaar
-            </h2>
-          </div>
-          <button
-            onClick={() => router.push("/products")}
-            className="text-[#8a7160] hover:text-[#181411] text-sm font-medium"
-          >
-            ← Back to Products
-          </button>
-        </header>
-
-        {/* Main Content */}
-        <div className="px-4 sm:px-10 lg:px-20 xl:px-40 py-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-              {/* Image Gallery */}
-              <div className="space-y-4">
-                {/* Main Image */}
-                <div className="aspect-square bg-[#f5f2f0] rounded-lg overflow-hidden border border-[#e6dfdb]">
-                  {product.images.length > 0 ? (
-                    <img
-                      src={product.images[selectedImage].url}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-8xl">
-                      📦
-                    </div>
-                  )}
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 flex items-center">
+                <div
+                  className="w-8 h-8 text-orange-600 cursor-pointer"
+                  onClick={() => router.push("/")}
+                >
+                  <svg viewBox="0 0 48 48" fill="currentColor">
+                    <g clipPath="url(#clip0_6_319)">
+                      <path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" />
+                    </g>
+                  </svg>
                 </div>
+                <h1 className="ml-3 text-xl font-bold text-gray-900">
+                  NexBazaar
+                </h1>
+              </div>
+            </div>
 
-                {/* Thumbnail Gallery */}
-                {product.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {product.images.map((image, index) => (
-                      <div
-                        key={image.id}
-                        className={`aspect-square bg-[#f5f2f0] rounded-lg overflow-hidden border-2 cursor-pointer ${
-                          selectedImage === index
-                            ? "border-[#f2690d]"
-                            : "border-[#e6dfdb]"
-                        }`}
-                        onClick={() => setSelectedImage(index)}
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <>
+                  {user.role === "VENDOR" && (
+                    <button
+                      onClick={() => router.push("/vendor/dashboard")}
+                      className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                    >
+                      Vendor Dashboard
+                    </button>
+                  )}
+                  {user.role === "CUSTOMER" && (
+                    <>
+                      <button
+                        onClick={() => router.push("/cart")}
+                        className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        <img
-                          src={image.url}
-                          alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
+                        Cart
+                      </button>
+                      <button
+                        onClick={() => router.push("/orders")}
+                        className="hidden sm:inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Orders
+                      </button>
+                    </>
+                  )}
+                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                      <span className="text-orange-600 font-medium">
+                        {user?.fullName
+                          ?.split(" ")
+                          .map((n) => n[0])
+                          .join("")}
+                      </span>
+                    </div>
+                    <span className="hidden sm:block">{user?.fullName}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={() => router.push("/login")}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => router.push("/signup")}
+                    className="px-4 py-2 text-sm font-medium text-white bg-orange-600 border border-transparent rounded-lg hover:bg-orange-700"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
+          <ol className="flex items-center space-x-2 text-sm text-gray-500">
+            <li>
+              <button
+                onClick={() => router.push("/")}
+                className="hover:text-gray-700 transition-colors"
+              >
+                Home
+              </button>
+            </li>
+            <li>
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </li>
+            <li>
+              <button
+                onClick={() => router.push("/products")}
+                className="hover:text-gray-700 transition-colors"
+              >
+                Products
+              </button>
+            </li>
+            <li>
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </li>
+            <li className="text-gray-900 font-medium truncate max-w-xs">
+              {product.name}
+            </li>
+          </ol>
+        </nav>
+
+        <div className="bg-white shadow rounded-lg overflow-hidden">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
+            {/* Image Gallery */}
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                {product.images.length > 0 ? (
+                  <img
+                    src={product.images[selectedImage].url}
+                    alt={product.name}
+                    className="w-full h-96 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-96 flex items-center justify-center bg-gray-100">
+                    <svg
+                      className="w-24 h-24 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
                   </div>
                 )}
               </div>
 
-              {/* Product Info */}
-              <div className="space-y-6">
-                {/* Breadcrumb */}
-                <div className="text-sm text-[#8a7160]">
-                  <span
-                    className="cursor-pointer hover:text-[#181411]"
-                    onClick={() => router.push("/products")}
-                  >
-                    Products
-                  </span>
-                  <span className="mx-2">/</span>
-                  <span className="text-[#181411]">{product.name}</span>
+              {/* Thumbnail Gallery */}
+              {product.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {product.images.map((image, index) => (
+                    <button
+                      key={image.id}
+                      className={`aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${
+                        selectedImage === index
+                          ? "border-orange-500 ring-2 ring-orange-200"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                      onClick={() => setSelectedImage(index)}
+                    >
+                      <img
+                        src={image.url}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
                 </div>
+              )}
+            </div>
 
-                {/* Product Name */}
-                <h1 className="text-[#181411] text-3xl sm:text-4xl font-bold">
+            {/* Product Info */}
+            <div className="space-y-6">
+              {/* Product Header */}
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {product.name}
                 </h1>
 
                 {/* Price and Stock */}
-                <div className="flex items-center gap-4">
-                  <span className="text-[#f2690d] text-3xl font-bold">
+                <div className="flex items-center space-x-4 mb-4">
+                  <span className="text-3xl font-bold text-orange-600">
                     Rs. {product.price.toFixed(2)}
                   </span>
                   <span
-                    className={`px-3 py-1 rounded text-sm font-medium ${
-                      product.stock > 0
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${stockInfo.class}`}
                   >
-                    {product.stock > 0
-                      ? `${product.stock} in stock`
-                      : "Out of stock"}
+                    {stockInfo.text}
                   </span>
                 </div>
 
-                {/* Description */}
-                {product.description && (
+                {/* Vendor Info */}
+                <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span className="text-orange-600 font-medium text-sm">
+                      {product.vendor.fullName
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </span>
+                  </div>
                   <div>
-                    <h3 className="text-[#181411] text-lg font-bold mb-2">
-                      Description
-                    </h3>
-                    <p className="text-[#8a7160] leading-relaxed">
-                      {product.description}
+                    <p className="text-sm font-medium text-gray-900">Sold by</p>
+                    <p className="text-sm text-gray-600">
+                      {product.vendor.fullName}
                     </p>
                   </div>
-                )}
-
-                {/* Vendor Info */}
-                <div className="border border-[#e6dfdb] rounded-lg p-4 bg-[#f5f2f0]">
-                  <h3 className="text-[#181411] font-bold mb-1">Sold by</h3>
-                  <p className="text-[#8a7160]">{product.vendor.fullName}</p>
                 </div>
+              </div>
 
-                {/* Quantity Selector */}
+              {/* Description */}
+              {product.description && (
+                <div className="border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Description
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Quantity and Add to Cart */}
+              <div className="border-t border-gray-200 pt-6">
                 {product.stock > 0 && (
-                  <div>
-                    <label className="block text-[#181411] font-medium mb-2">
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
                       Quantity
                     </label>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center space-x-3">
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-10 h-10 border border-[#e6dfdb] rounded-lg flex items-center justify-center text-[#181411] font-bold hover:bg-[#f5f2f0]"
+                        className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50 transition-colors"
+                        disabled={quantity <= 1}
                       >
                         −
                       </button>
-                      <span className="w-16 text-center text-[#181411] font-bold">
+                      <span className="w-16 text-center text-lg font-semibold text-gray-900">
                         {quantity}
                       </span>
                       <button
                         onClick={() =>
                           setQuantity(Math.min(product.stock, quantity + 1))
                         }
-                        className="w-10 h-10 border border-[#e6dfdb] rounded-lg flex items-center justify-center text-[#181411] font-bold hover:bg-[#f5f2f0]"
+                        className="w-12 h-12 border border-gray-300 rounded-lg flex items-center justify-center text-gray-600 font-bold hover:bg-gray-50 transition-colors"
+                        disabled={quantity >= product.stock}
                       >
                         +
                       </button>
+                      <span className="text-sm text-gray-500 ml-2">
+                        Max: {product.stock}
+                      </span>
                     </div>
                   </div>
                 )}
 
-                {/* Add to Cart / Vendor Role Handling */}
-                {user?.role === "CUSTOMER" ? (
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={product.stock === 0}
-                    className="w-full py-4 px-6 bg-[#f2690d] text-white text-base font-bold rounded-lg hover:bg-[#d95a0a] transition-colors disabled:bg-[#e6dfdb] disabled:cursor-not-allowed"
-                  >
-                    {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
-                  </button>
-                ) : user?.role === "VENDOR" ? (
-                  <div className="w-full py-4 px-6 bg-[#f2690d] text-white text-center text-base font-bold rounded-lg cursor-not-allowed opacity-90">
-                    Vendors cannot add products to cart
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => router.push("/login")}
-                    className="w-full py-4 px-6 bg-[#f2690d] text-white text-base font-bold rounded-lg hover:bg-[#d95a0a] transition-colors"
-                  >
-                    Login to Purchase
-                  </button>
-                )}
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  {user?.role === "CUSTOMER" ? (
+                    <button
+                      onClick={handleAddToCart}
+                      disabled={product.stock === 0}
+                      className="w-full py-3 px-6 bg-orange-600 text-white text-base font-semibold rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-sm"
+                    >
+                      {product.stock > 0 ? "Add to Cart" : "Out of Stock"}
+                    </button>
+                  ) : user?.role === "VENDOR" ? (
+                    <div className="w-full py-3 px-6 bg-gray-400 text-white text-center text-base font-semibold rounded-lg cursor-not-allowed">
+                      Vendors cannot add products to cart
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => router.push("/login")}
+                      className="w-full py-3 px-6 bg-orange-600 text-white text-base font-semibold rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm"
+                    >
+                      Login to Purchase
+                    </button>
+                  )}
 
-                {/* Additional Info */}
-                <div className="text-sm text-[#8a7160] space-y-1">
-                  <p>✓ Safe and secure checkout</p>
-                  <p>✓ Easy returns within 30 days</p>
-                  <p>✓ Fast shipping available</p>
+                  <button
+                    onClick={() => router.push("/products")}
+                    className="w-full py-3 px-6 border border-gray-300 text-gray-700 text-base font-semibold rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                  >
+                    Continue Shopping
+                  </button>
+                </div>
+              </div>
+
+              {/* Product Features */}
+              <div className="border-t border-gray-200 pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-green-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Secure checkout</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-green-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Easy returns within 30 days</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-green-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Fast shipping available</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <svg
+                      className="h-5 w-5 text-green-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Customer support</span>
+                  </div>
                 </div>
               </div>
             </div>
