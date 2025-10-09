@@ -53,7 +53,7 @@ export default function CheckoutPage() {
     }
 
     const userData = JSON.parse(user);
-    if (userData.role !== "customer") {
+    if (userData.role !== "CUSTOMER") {
       showToast("Only customers can place orders", "error");
       router.push("/");
       return;
