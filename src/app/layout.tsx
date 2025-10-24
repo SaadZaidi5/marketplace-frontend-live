@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"; // updated import
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({ subsets: ["latin"] }); // replaces sans/GeistSans
 const robotoMono = Roboto_Mono({ subsets: ["latin"] }); // replaces mono
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className={robotoMono.className}>
         <Suspense fallback={null}>
           {children}
+          <SpeedInsights />
           <Toaster />
         </Suspense>
         <Analytics />
